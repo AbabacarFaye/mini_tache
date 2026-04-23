@@ -28,6 +28,17 @@ jobs:
         run: npm run build
         working-directory: frontend
 
+      - name: Verify frontend build
+        run: |
+          echo "Checking if frontend/build exists..."
+          if [ -d "frontend/build" ]; then
+            echo "✅ frontend/build exists"
+            ls -la frontend/build | head -10
+          else
+            echo "❌ ERROR: frontend/build was not created!"
+            exit 1
+          fi
+
       # 🔥 BACKEND
       - name: Install backend dependencies
         run: npm install
@@ -36,22 +47,36 @@ jobs:
       # 🔥 Préparer package final pour Azure
       - name: Prepare deployment package
         run: |
+          echo "📦 Starting deployment package preparation..."
+          
+          # Lister le répertoire courant
+          echo "Current directory: $(pwd)"
+          echo "Contents:"
+          ls -la
+          
           # Vérifier que le build frontend existe
           if [ ! -d "frontend/build" ]; then
-            echo "ERROR: frontend/build does not exist!"
+            echo "❌ ERROR: frontend/build does not exist!"
+            echo "frontend directory contents:"
+            ls -la frontend/
             exit 1
           fi
+          
+          echo "✅ frontend/build confirmed to exist"
           
           # Créer répertoire de déploiement
           mkdir -p deploy
           
           # Copier backend
+          echo "📋 Copying backend files..."
           cp -r backend/* deploy/
           
           # Copier build frontend comme dossier public
+          echo "🎨 Copying frontend build as public folder..."
           cp -r frontend/build deploy/public
           
           echo "✅ Deployment package prepared"
+          echo "Deploy directory contents:"
           ls -la deploy/
 
       # 🔥 Upload artifact
