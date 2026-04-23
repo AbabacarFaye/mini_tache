@@ -17,13 +17,13 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 16
 
       # 🔥 FRONTEND
       - name: Install frontend dependencies
         run: |
           echo "📦 Installing frontend dependencies..."
-          npm install --legacy-peer-deps
+          npm ci --legacy-peer-deps
           echo "✅ Frontend dependencies installed"
           npm list --depth=0 2>/dev/null | head -20
         working-directory: frontend
@@ -54,7 +54,7 @@ jobs:
 
       # 🔥 BACKEND
       - name: Install backend dependencies
-        run: npm install
+        run: npm ci --legacy-peer-deps
         working-directory: backend
 
       # 🔥 Préparer package final pour Azure
