@@ -4,20 +4,23 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 18
 
-      # FRONTEND
-      - name: Install frontend
+      # 🔥 FRONTEND
+      - name: Install frontend dependencies
         run: npm install
         working-directory: frontend
 
@@ -25,21 +28,22 @@ jobs:
         run: npm run build
         working-directory: frontend
 
-      # BACKEND
-      - name: Install backend
+      # 🔥 BACKEND
+      - name: Install backend dependencies
         run: npm install
         working-directory: backend
 
-      # Préparer package
-      - name: Prepare files
+      # 🔥 Préparer package final pour Azure
+      - name: Prepare deployment package
         run: |
           cp -r backend/* .
           cp -r frontend/build ./build
 
+      # 🔥 Upload artifact
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: app
+          name: node-app
           path: .
 
   deploy:
@@ -47,17 +51,20 @@ jobs:
     needs: build
 
     steps:
-      - uses: actions/download-artifact@v4
+      - name: Download artifact
+        uses: actions/download-artifact@v4
         with:
-          name: app
+          name: node-app
 
-      - uses: azure/login@v2
+      - name: Login to Azure
+        uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_36B0F6415F3E445FA86CCB58D245FE25 }}
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_6A49E7A23808409FAFEF655F68A5DF96 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_52E6B8A7299148FD9DCB1C9032A765BA }}
 
-      - uses: azure/webapps-deploy@v3
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v3
         with:
           app-name: 'mini-tache'
           slot-name: 'Production'
