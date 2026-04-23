@@ -21,11 +21,19 @@ jobs:
 
       # 🔥 FRONTEND
       - name: Install frontend dependencies
-        run: npm install
+        run: |
+          echo "📦 Installing frontend dependencies..."
+          npm install --legacy-peer-deps
+          echo "✅ Frontend dependencies installed"
+          npm list --depth=0 2>/dev/null | head -20
         working-directory: frontend
 
       - name: Build frontend
-        run: npm run build
+        run: |
+          echo "🔨 Building frontend..."
+          npm run build
+          echo "✅ Frontend build completed - checking output:"
+          ls -la build/ | head -15
         working-directory: frontend
 
       - name: Verify frontend build
@@ -36,6 +44,11 @@ jobs:
             ls -la frontend/build | head -10
           else
             echo "❌ ERROR: frontend/build was not created!"
+            echo "Frontend directory contents:"
+            ls -la frontend/
+            echo "Node version:"
+            node --version
+            npm --version
             exit 1
           fi
 
