@@ -1,0 +1,64 @@
+name: Build and deploy Node.js app to Azure Web App - mini-tache
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      # FRONTEND
+      - name: Install frontend
+        run: npm install
+        working-directory: frontend
+
+      - name: Build frontend
+        run: npm run build
+        working-directory: frontend
+
+      # BACKEND
+      - name: Install backend
+        run: npm install
+        working-directory: backend
+
+      # Préparer package
+      - name: Prepare files
+        run: |
+          cp -r backend/* .
+          cp -r frontend/build ./build
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app
+          path: .
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: app
+
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_36B0F6415F3E445FA86CCB58D245FE25 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_6A49E7A23808409FAFEF655F68A5DF96 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_52E6B8A7299148FD9DCB1C9032A765BA }}
+
+      - uses: azure/webapps-deploy@v3
+        with:
+          app-name: 'mini-tache'
+          slot-name: 'Production'
+          package: .

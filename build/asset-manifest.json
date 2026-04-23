@@ -1,0 +1,16 @@
+{
+  "files": {
+    "main.css": "/static/css/main.45093f3b.css",
+    "main.js": "/static/js/main.fffda016.js",
+    "static/js/453.825386d9.chunk.js": "/static/js/453.825386d9.chunk.js",
+    "static/media/stock-vector-project-management-mind-map-scheme-removebg-preview.png": "/static/media/stock-vector-project-management-mind-map-scheme-removebg-preview.3a154bbf5a1aadff6f03.png",
+    "index.html": "/index.html",
+    "main.45093f3b.css.map": "/static/css/main.45093f3b.css.map",
+    "main.fffda016.js.map": "/static/js/main.fffda016.js.map",
+    "453.825386d9.chunk.js.map": "/static/js/453.825386d9.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.45093f3b.css",
+    "static/js/main.fffda016.js"
+  ]
+}
