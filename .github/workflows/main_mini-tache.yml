@@ -36,15 +36,30 @@ jobs:
       # 🔥 Préparer package final pour Azure
       - name: Prepare deployment package
         run: |
-          cp -r backend/* .
-          cp -r frontend/build ./build
+          # Vérifier que le build frontend existe
+          if [ ! -d "frontend/build" ]; then
+            echo "ERROR: frontend/build does not exist!"
+            exit 1
+          fi
+          
+          # Créer répertoire de déploiement
+          mkdir -p deploy
+          
+          # Copier backend
+          cp -r backend/* deploy/
+          
+          # Copier build frontend comme dossier public
+          cp -r frontend/build deploy/public
+          
+          echo "✅ Deployment package prepared"
+          ls -la deploy/
 
       # 🔥 Upload artifact
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: node-app
-          path: .
+          path: deploy
 
   deploy:
     runs-on: ubuntu-latest
