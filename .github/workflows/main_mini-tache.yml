@@ -122,5 +122,4 @@ jobs:
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'mini-tache'
-          slot-name: 'Production'
           package: deploy
