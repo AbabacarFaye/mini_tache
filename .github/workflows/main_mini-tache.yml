@@ -86,9 +86,9 @@ jobs:
           # Copy backend app files
           cp -a backend/. deploy/
 
-          # Copy frontend production build to public/
-          mkdir -p deploy/public
-          cp -a frontend/build/. deploy/public/
+          # Copy frontend production build to build/
+          mkdir -p deploy/build
+          cp -a frontend/build/. deploy/build/
 
           echo "Deployment package prepared"
           ls -la deploy/
