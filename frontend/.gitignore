@@ -7,7 +7,7 @@ package-lock.json
 # Production builds
 backend/build/
 backend/dist/
-frontend/build/
+
 
 # Environment variables
 .env

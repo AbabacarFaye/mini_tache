@@ -18,82 +18,58 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # ✅ Node 20 (important)
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 16
+          node-version: 20
 
-      # 🔥 FRONTEND
+      # 🔥 INSTALL FRONTEND
       - name: Install frontend dependencies
-        run: |
-          echo "Installing frontend dependencies..."
-          if [ -f package-lock.json ]; then
-            npm ci --legacy-peer-deps
-          else
-            echo "No frontend package-lock.json found, using npm install"
-            npm install --legacy-peer-deps
-          fi
+        run: npm install
         working-directory: frontend
 
+      # 🔥 BUILD FRONTEND
       - name: Build frontend
-        run: |
-          echo "Building frontend..."
-          npm run build
-          ls -la build | head -15
+        run: npm run build
         working-directory: frontend
 
+      # 🔍 VERIFY BUILD
       - name: Verify frontend build
         run: |
-          echo "Checking if frontend/build exists..."
-          if [ -d "frontend/build" ]; then
-            echo "frontend/build exists"
-            ls -la frontend/build | head -10
-          else
-            echo "ERROR: frontend/build was not created"
-            echo "frontend directory contents:"
-            ls -la frontend/
-            echo "node/npm versions:"
-            node --version
-            npm --version
+          echo "Checking frontend build..."
+          ls -la frontend/build
+          if [ ! -f "frontend/build/index.html" ]; then
+            echo "ERROR: index.html not found"
             exit 1
           fi
 
-      # 🔥 BACKEND
+      # 🔥 INSTALL BACKEND
       - name: Install backend dependencies
-        run: |
-          if [ -f package-lock.json ]; then
-            npm ci --legacy-peer-deps
-          else
-            echo "No backend package-lock.json found, using npm install"
-            npm install --legacy-peer-deps
-          fi
+        run: npm install
         working-directory: backend
 
-      # 🔥 Préparer package final pour Azure
+      # 🔥 PREPARE DEPLOYMENT PACKAGE
       - name: Prepare deployment package
         run: |
-          echo "Preparing deployment package..."
+          echo "Preparing deployment..."
 
-          if [ ! -d "frontend/build" ]; then
-            echo "ERROR: frontend/build does not exist"
-            echo "frontend directory contents:"
-            ls -la frontend/
-            exit 1
-          fi
+          mkdir deploy
 
-          mkdir -p deploy
+          # Backend
+          cp -r backend deploy/backend
 
-          # Copy backend app files
-          cp -a backend/. deploy/
+          # Frontend build (IMPORTANT 🔥)
+          mkdir -p deploy/frontend
+          cp -r frontend/build deploy/frontend/build
 
-          # Copy frontend production build to build/
-          mkdir -p deploy/build
-          cp -a frontend/build/. deploy/build/
+          # Root package.json
+          cp package.json deploy/
 
-          echo "Deployment package prepared"
-          ls -la deploy/
+          echo "Final structure:"
+          ls -R deploy
 
-      # 🔥 Upload artifact
+      # 📦 UPLOAD ARTIFACT
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
