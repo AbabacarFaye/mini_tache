@@ -41,7 +41,7 @@ if (fs.existsSync(indexPath)) {
   });
 }
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 8080;
 
 // MongoDB connection then start server
 mongoose
