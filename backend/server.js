@@ -42,10 +42,9 @@ if (hasFrontendBuild) {
   app.use(express.static(frontendPath));
 
   // SPA fallback for non-API routes only
-  app.get("*", (req, res, next) => {
-    if (req.path.startsWith("/api/")) return next();
-    return res.sendFile(indexPath);
-  });
+  app.use((req, res) => {
+  res.sendFile(indexPath);
+});
 } else {
   // Keep app alive even if frontend is missing in deployment package
   app.get("/", (req, res) => {
