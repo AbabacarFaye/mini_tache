@@ -42,6 +42,7 @@ if (fs.existsSync(indexPath)) {
 }
 
 const PORT = process.env.PORT || 8080;
+console.log("🔥 PORT utilisé:", PORT);
 
 // MongoDB connection then start server
 mongoose
