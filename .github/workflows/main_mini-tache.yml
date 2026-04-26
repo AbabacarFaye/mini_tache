@@ -69,12 +69,40 @@ jobs:
           echo "Final structure:"
           ls -R deploy
 
+      # 🔍 VERIFY DEPLOYMENT STRUCTURE
+      - name: Verify deployment structure
+        run: |
+          if [ ! -f "deploy/package.json" ]; then
+            echo "ERROR: deploy/package.json missing"
+            exit 1
+          fi
+
+          if [ ! -f "deploy/backend/server.js" ]; then
+            echo "ERROR: deploy/backend/server.js missing"
+            exit 1
+          fi
+
+          if [ ! -f "deploy/frontend/build/index.html" ]; then
+            echo "ERROR: deploy/frontend/build/index.html missing"
+            exit 1
+          fi
+
+          echo "Deployment structure is valid"
+
+      # 📦 CREATE ZIP PACKAGE (stable root for Azure)
+      - name: Create deployment zip
+        run: |
+          cd deploy
+          zip -r ../deploy.zip .
+          cd ..
+          ls -lh deploy.zip
+
       # 📦 UPLOAD ARTIFACT
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: node-app
-          path: deploy
+          path: deploy.zip
 
   deploy:
     runs-on: ubuntu-latest
@@ -85,7 +113,16 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: node-app
-          path: deploy
+          path: .
+
+      - name: Verify downloaded artifact
+        run: |
+          ls -la
+          if [ ! -f "deploy.zip" ]; then
+            echo "ERROR: deploy.zip missing after download"
+            exit 1
+          fi
+          unzip -l deploy.zip | head -n 50
 
       - name: Login to Azure
         uses: azure/login@v2
@@ -98,4 +135,4 @@ jobs:
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'mini-tache'
-          package: deploy
+          package: deploy.zip

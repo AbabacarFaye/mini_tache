@@ -6,6 +6,7 @@ const authRoutes = require("./routes/authRoutes");
 const taskRoutes = require("./routes/taskRoutes");
 const userRoutes = require("./routes/userRoutes");
 const path = require("path");
+const fs = require("fs");
 
 const app = express();
 
@@ -25,12 +26,20 @@ app.get("/api/health", (req, res) => {
 
 // Serve React build generated in /frontend/build
 const frontendPath = path.join(__dirname, "..", "frontend", "build");
-app.use(express.static(frontendPath));
+const indexPath = path.join(frontendPath, "index.html");
 
-// React SPA fallback
-app.get("*", (req, res) => {
-  res.sendFile(path.join(frontendPath, "index.html"));
-});
+if (fs.existsSync(indexPath)) {
+  app.use(express.static(frontendPath));
+
+  // React SPA fallback
+  app.get("*", (req, res) => {
+    res.sendFile(indexPath);
+  });
+} else {
+  app.get("/", (req, res) => {
+    res.status(200).send("API is running, frontend build is missing.");
+  });
+}
 
 const PORT = process.env.PORT || 5000;
 
