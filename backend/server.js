@@ -2,15 +2,15 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 require("dotenv").config();
+
 const authRoutes = require("./routes/authRoutes");
 const taskRoutes = require("./routes/taskRoutes");
 const userRoutes = require("./routes/userRoutes");
+
 const path = require("path");
-const fs = require("fs");
 
 const app = express();
 
-// Middleware
 app.use(cors());
 app.use(express.json());
 
@@ -19,36 +19,27 @@ app.use("/api/auth", authRoutes);
 app.use("/api/tasks", taskRoutes);
 app.use("/api/users", userRoutes);
 
-// Health check
-app.get("/api/health", (req, res) => {
-  res.send("API is running...");
-});
-
-// Serve React build generated in /frontend/build
+// 🔥 FORCE FRONTEND (sans condition)
 const frontendPath = path.join(__dirname, "..", "frontend", "build");
 const indexPath = path.join(frontendPath, "index.html");
 
-if (fs.existsSync(indexPath)) {
-  app.use(express.static(frontendPath));
+console.log("📁 FRONTEND PATH:", frontendPath);
 
-  // React SPA fallback
-  app.get("*", (req, res) => {
-    res.sendFile(indexPath);
-  });
-} else {
-  app.get("/", (req, res) => {
-    res.status(200).send("API is running, frontend build is missing.");
-  });
-}
+// servir React
+app.use(express.static(frontendPath));
+
+// fallback React
+app.get("*", (req, res) => {
+  res.sendFile(indexPath);
+});
 
 const PORT = process.env.PORT || 8080;
-console.log("🔥 PORT utilisé:", PORT);
 
-// MongoDB connection then start server
-mongoose
-  .connect(process.env.MONGO_URI)
+mongoose.connect(process.env.MONGO_URI)
   .then(() => {
     console.log("MongoDB Atlas connected");
+    console.log("🔥 PORT utilisé:", PORT);
+
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
     });
